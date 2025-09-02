@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>തിരിച്ചുവണ്ടി • ThirichuVandi — Return Trip Courier Matcher for Kerala</title>
+  <meta name="description" content="ThirichuVandi (തിരിച്ചുവണ്ടി) — AI‑assisted marketplace to match drivers’ return trips with courier loads across Kerala. Reduce empty miles, cut costs, and increase driver profit."/>
+  <style>
+    /* ====== Design Tokens ====== */
+    :root{
+      --bg-1: #0b1220;
+      --bg-2: #0f172a;
+      --surface: rgba(255,255,255,0.06);
+      --surface-strong: rgba(255,255,255,0.12);
+      --text: #e6f0ff;
+      --muted: #a9b7d3;
+      --brand-1: #34d399; /* emerald */
+      --brand-2: #4f46e5; /* indigo */
+      --accent: #22d3ee;  /* cyan */
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --ok: #10b981;
+      --radius-2xl: 20px;
+      --radius-xl: 16px;
+      --radius-lg: 12px;
+      --shadow-1: 0 10px 25px rgba(0,0,0,.35);
+      --shadow-2: 0 14px 50px rgba(0,0,0,.45);
+      --glass: saturate(180%) blur(10px);
+      --maxw: 1200px;
+    }
+
+    /* ====== Reset + Base ====== */
+    * { box-sizing: border-box; }
+    html,body { height: 100%; }
+    body{
+      margin:0; color:var(--text); font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Noto Sans", "Malayalam Sangam MN", "Noto Sans Malayalam", sans-serif;
+      background: radial-gradient(1200px 800px at 10% 10%, #13203a 0%, transparent 60%),
+                  radial-gradient(1000px 600px at 90% 20%, #1a2a52 0%, transparent 60%),
+                  linear-gradient(160deg, var(--bg-1), var(--bg-2));
+    }
+    a{ color: var(--accent); text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+    h1,h2,h3{ margin: 0 0 10px 0; line-height: 1.2; }
+    p{ color: var(--muted); margin: 0 0 10px 0; }
+
+    /* ====== Layout ====== */
+    .container{ max-width: var(--maxw); margin: 0 auto; padding: 24px; }
+    header{
+      position: sticky; top: 0; z-index: 20; backdrop-filter: var(--glass); background: linear-gradient(0deg, rgba(11,18,32,.4), rgba(11,18,32,.7));
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .nav{ display:flex; align-items:center; justify-content:space-between; gap: 12px; }
+    .brand{
+      display:flex; align-items:center; gap:14px;
+    }
+    .logo{
+      width:42px; height:42px; border-radius:12px;
+      background: conic-gradient(from 210deg, var(--brand-1), var(--brand-2), var(--accent));
+      box-shadow: inset 0 0 20px rgba(255,255,255,.35), var(--shadow-1);
+    }
+    .brand h1{ font-weight: 800; letter-spacing: .2px; font-size: clamp(20px, 2vw, 26px); }
+    .brand small{ display:block; color:var(--muted); font-weight: 500; margin-top:2px; }
+    .chip{
+      padding: 8px 12px; border-radius: 999px; background: var(--surface); border:1px solid rgba(255,255,255,.08);
+      color: var(--muted); font-weight: 600; display:inline-flex; align-items:center; gap:8px;
+    }
+
+    .hero{ display:grid; grid-template-columns: 1.2fr .8fr; gap: 24px; align-items: center; margin-top: 22px; }
+    .card{
+      background: var(--surface); border:1px solid rgba(255,255,255,.06); border-radius: var(--radius-2xl);
+      box-shadow: var(--shadow-2);
+    }
+    .card-inner{ padding: 20px; }
+    .card h2{ font-size: clamp(20px, 2vw, 24px); }
+
+    .gradient-text{ background: linear-gradient(90deg, var(--brand-1), var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+    .grid-2{ display:grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-3{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+
+    /* ====== Form ====== */
+    label{ font-size: 13px; color: var(--muted); display:block; margin-bottom: 6px; }
+    input, select{ width:100%; padding: 12px 14px; background: rgba(255,255,255,.06); color: var(--text);
+      border:1px solid rgba(255,255,255,.1); border-radius: 12px; outline: none; transition: .2s border;
+    }
+    input::placeholder{ color: #8ea1c2; }
+    input:focus, select:focus{ border-color: var(--accent); }
+
+    .actions{ display:flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+    .btn{
+      padding: 12px 16px; border-radius: 12px; border: 0; font-weight: 700; letter-spacing:.2px; cursor:pointer;
+      background: linear-gradient(90deg, var(--brand-2), var(--accent)); color: #fff; box-shadow: var(--shadow-1);
+    }
+    .btn.secondary{ background: linear-gradient(90deg, rgba(255,255,255,.06), rgba(255,255,255,.1)); color: var(--text); border:1px solid rgba(255,255,255,.12); }
+    .btn.ghost{ background: transparent; border:1px dashed rgba(255,255,255,.25); color: var(--muted); }
+
+    .pill{ display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; border:1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.06); }
+    .score{ font-weight: 800; }
+
+    /* ====== Sections ====== */
+    .toolbar{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin: 22px 0 12px; }
+    .results{ display:grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .result-card{ position:relative; overflow: hidden; }
+    .badge{ position:absolute; top:12px; right:12px; }
+
+    .meta{ display:flex; gap:10px; flex-wrap:wrap; margin-top: 8px; }
+    .line{ height:1px; background: rgba(255,255,255,.08); margin: 10px 0; }
+
+    /* ====== Responsive ====== */
+    @media (max-width: 980px){
+      .hero{ grid-template-columns: 1fr; }
+      .results{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>തിരിച്ചുവണ്ടി <span class="gradient-text">ThirichuVandi</span></h1>
+          <small>ശൂന്യയാത്രകളില്ല • No empty miles. Lower costs, higher profit.</small>
+        </div>
+      </div>
+      <div class="chip" title="Kerala‑focused return‑trip courier marketplace">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h11l4 8H7l-4-8Z"/><path d="M7 10V6a5 5 0 1 1 10 0v4"/></svg>
+        BETA
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Hero / Pitch -->
+    <section class="hero">
+      <div class="card">
+        <div class="card-inner">
+          <h2>Kerala’s AI matcher for return‑trip loads</h2>
+          <p>Drivers post trips (with <b>return time</b> & <b>vehicle model</b>). Businesses post shipments. Our matcher awards higher points for <b>exact time</b> & <b>exact route</b> matches and ranks results so you can book with confidence.</p>
+          <div class="meta" style="margin-top:12px">
+            <span class="pill"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Reduce empty trips</span>
+            <span class="pill"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Time‑window precision</span>
+            <span class="pill"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg> Vehicle fit</span>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-inner">
+          <h2>Quick demo</h2>
+          <p>Add a sample driver & shipment and run the AI matcher.</p>
+          <div class="actions">
+            <button class="btn" id="demoAdd">Add demo data</button>
+            <button class="btn secondary" id="runMatcherTop">Run matcher</button>
+          </div>
+          <p id="toast" style="margin-top:8px; color:#b6ffcc"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Forms -->
+    <section style="margin-top: 22px;">
+      <div class="grid-2">
+        <!-- Driver Form -->
+        <div class="card">
+          <div class="card-inner">
+            <h2>Post a Driver Trip <span class="gradient-text">(തിരിച്ചുപോക്ക് സമയത്തോടെ)</span></h2>
+            <div class="grid-2">
+              <div>
+                <label for="dName">Driver Name</label>
+                <input id="dName" placeholder="e.g., Shaji"/>
+              </div>
+              <div>
+                <label for="dVehicle">Vehicle Type / Model</label>
+                <select id="dVehicle"></select>
+              </div>
+            </div>
+            <div class="grid-2" style="margin-top:10px;">
+              <div>
+                <label for="dFrom">From (Origin)</label>
+                <select id="dFrom"></select>
+              </div>
+              <div>
+                <label for="dTo">To (Destination)</label>
+                <select id="dTo"></select>
+              </div>
+            </div>
+            <div class="grid-2" style="margin-top:10px;">
+              <div>
+                <label for="dDepart">Depart Time</label>
+                <input id="dDepart" type="datetime-local" />
+              </div>
+              <div>
+                <label for="dReturn">Return Time</label>
+                <input id="dReturn" type="datetime-local" />
+              </div>
+            </div>
+            <div class="grid-3" style="margin-top:10px;">
+              <div>
+                <label for="dCapacity">Capacity (kg)</label>
+                <input id="dCapacity" type="number" placeholder="e.g., 1500" />
+              </div>
+              <div>
+                <label for="dRating">Driver Rating</label>
+                <input id="dRating" type="number" step="0.1" min="0" max="5" placeholder="4.6" />
+              </div>
+              <div>
+                <label for="dPhone">Phone (optional)</label>
+                <input id="dPhone" placeholder="e.g., 98xxxxxxx" />
+              </div>
+            </div>
+            <div class="actions">
+              <button class="btn" id="addDriver">Post Driver Trip</button>
+              <button class="btn ghost" id="clearDrivers">Clear Drivers</button>
+            </div>
+            <div class="line"></div>
+            <div class="meta" id="driversMeta"></div>
+          </div>
+        </div>
+
+        <!-- Shipment Form -->
+        <div class="card">
+          <div class="card-inner">
+            <h2>Post a Shipment <span class="gradient-text">(വ്യാപారത്തിനായി)</span></h2>
+            <div class="grid-2">
+              <div>
+                <label for="sBiz">Business Name</label>
+                <input id="sBiz" placeholder="e.g., Malabar Furnishings"/>
+              </div>
+              <div>
+                <label for="sWeight">Weight (kg)</label>
+                <input id="sWeight" type="number" placeholder="e.g., 800"/>
+              </div>
+            </div>
+            <div class="grid-2" style="margin-top:10px;">
+              <div>
+                <label for="sFrom">Pickup From</label>
+                <select id="sFrom"></select>
+              </div>
+              <div>
+                <label for="sTo">Drop To</label>
+                <select id="sTo"></select>
+              </div>
+            </div>
+            <div class="grid-2" style="margin-top:10px;">
+              <div>
+                <label for="sReadyFrom">Ready Window — From</label>
+                <input id="sReadyFrom" type="datetime-local" />
+              </div>
+              <div>
+                <label for="sReadyTo">Ready Window — To</label>
+                <input id="sReadyTo" type="datetime-local" />
+              </div>
+            </div>
+            <div class="grid-3" style="margin-top:10px;">
+              <div>
+                <label for="sFragile">Fragile?</label>
+                <select id="sFragile">
+                  <option value="no">No</option>
+                  <option value="yes">Yes</option>
+                </select>
+              </div>
+              <div>
+                <label for="sContact">Contact</label>
+                <input id="sContact" placeholder="e.g., 89xxxxxxx" />
+              </div>
+              <div>
+                <label for="sNotes">Notes (optional)</label>
+                <input id="sNotes" placeholder="Stack vertically, keep dry…" />
+              </div>
+            </div>
+            <div class="actions">
+              <button class="btn" id="addShipment">Post Shipment</button>
+              <button class="btn ghost" id="clearShipments">Clear Shipments</button>
+            </div>
+            <div class="line"></div>
+            <div class="meta" id="shipmentsMeta"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Matcher Toolbar -->
+    <section class="toolbar">
+      <div class="chip">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        AI Match Score prioritises <b>&nbsp;exact time / exact route&nbsp;</b> matches
+      </div>
+      <div class="actions">
+        <button class="btn secondary" id="runMatcher">Run matcher</button>
+        <button class="btn ghost" id="resetAll">Reset all</button>
+      </div>
+    </section>
+
+    <!-- Results -->
+    <section>
+      <div class="results" id="results"></div>
+    </section>
+
+    <!-- How it works -->
+    <section style="margin: 22px 0 60px;">
+      <div class="card">
+        <div class="card-inner">
+          <h2>Scoring Algorithm (v1)</h2>
+          <p>We use a weighted score out of 100:</p>
+          <ul>
+            <li><b>Route match (0–40)</b> — distance between origin & destination pairs (≤ 10km ⇒ 40, ≤ 25km ⇒ 28, ≤ 50km ⇒ 16, else 0).</li>
+            <li><b>Time window (0–30)</b> — if driver depart time is inside shipment ready window ⇒ 20–30 (closer = higher).</li>
+            <li><b>Exact time boost (+20)</b> — extra points if depart time is within 15 minutes of window centre.</li>
+            <li><b>Return‑trip bonus (+10)</b> — if shipment is reverse route and aligns with driver return time window.</li>
+            <li><b>Vehicle fit (0–10)</b> — capacity ≥ weight = 10, else 0. (Future: size, closure, refrigeration.)</li>
+          </ul>
+          <p>Matches are ranked by total score. Ties break on higher driver rating, then shorter distance.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    /* ============================
+       Kerala Return-Trip Matcher
+       ============================ */
+
+    // --- Kerala city coordinates (approx) ---
+    const cities = {
+      "Thiruvananthapuram": {lat: 8.5241, lon: 76.9366},
+      "Kollam": {lat: 8.8932, lon: 76.6141},
+      "Pathanamthitta": {lat: 9.2647, lon: 76.7870},
+      "Alappuzha": {lat: 9.4981, lon: 76.3388},
+      "Kottayam": {lat: 9.5916, lon: 76.5222},
+      "Idukki": {lat: 9.8490, lon: 76.9680},
+      "Ernakulam (Kochi)": {lat: 9.9312, lon: 76.2673},
+      "Thrissur": {lat: 10.5276, lon: 76.2144},
+      "Palakkad": {lat: 10.7867, lon: 76.6548},
+      "Malappuram": {lat: 11.0730, lon: 76.0743},
+      "Kozhikode": {lat: 11.2588, lon: 75.7804},
+      "Wayanad": {lat: 11.6854, lon: 76.1310},
+      "Kannur": {lat: 11.8745, lon: 75.3704},
+      "Kasaragod": {lat: 12.5000, lon: 75.0000}
+    };
+
+    // --- Vehicle presets ---
+    const vehiclePresets = [
+      {label: "Bolero Pickup (Open)", type: "pickup", capacityKg: 1500},
+      {label: "Ashok Leyland Dost (Open)", type: "pickup", capacityKg: 1250},
+      {label: "Mini Truck (Closed Van)", type: "van", capacityKg: 1000},
+      {label: "LCV 7ft (Closed)", type: "van", capacityKg: 2000},
+      {label: "Tempo Traveller (Seats removed)", type: "van", capacityKg: 800}
+    ];
+
+    // --- State ---
+    let drivers = JSON.parse(localStorage.getItem('tv_drivers')||'[]');
+    let shipments = JSON.parse(localStorage.getItem('tv_shipments')||'[]');
+
+    // --- Helpers ---
+    const byId = id => document.getElementById(id);
+    function populateSelect(el, items){ el.innerHTML = items.map(v => `<option value="${v}">${v}</option>`).join(''); }
+    function populateVehicles(){ byId('dVehicle').innerHTML = vehiclePresets.map((v,i)=>`<option value="${i}">${v.label} — ${v.capacityKg}kg</option>`).join(''); }
+    function populateCities(){ const names = Object.keys(cities); ['dFrom','dTo','sFrom','sTo'].forEach(id=>populateSelect(byId(id), names)); }
+
+    function haversine(a,b){
+      const R = 6371; // Earth radius (km)
+      const toRad = d => d * Math.PI / 180;
+      const dLat = toRad(b.lat - a.lat);
+      const dLon = toRad(b.lon - a.lon);
+      const lat1 = toRad(a.lat), lat2 = toRad(b.lat);
+      const x = Math.sin(dLat/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLon/2)**2;
+      return 2*R*Math.asin(Math.sqrt(x));
+    }
+    const kmBetween = (c1, c2) => haversine(cities[c1], cities[c2]);
+
+    function minsBetween(t1, t2){ return Math.abs((new Date(t1) - new Date(t2)) / 60000); }
+    function withinWindow(t, wStart, wEnd){ const T=new Date(t).getTime(); return T>=new Date(wStart).getTime() && T<=new Date(wEnd).getTime(); }
+
+    function routeScore(orig1, orig2, dest1, dest2){
+      const pickupKm = kmBetween(orig1, orig2);
+      const dropKm = kmBetween(dest1, dest2);
+      let s1 = pickupKm <= 10 ? 20 : pickupKm <= 25 ? 14 : pickupKm <= 50 ? 8 : 0;
+      let s2 = dropKm   <= 10 ? 20 : dropKm   <= 25 ? 14 : dropKm   <= 50 ? 8 : 0;
+      return s1 + s2; // 0–40
+    }
+
+    function timeScore(depart, wStart, wEnd){
+      if(!withinWindow(depart, wStart, wEnd)) return 0;
+      // Scale within window — closer to window center is better
+      const center = new Date((new Date(wStart).getTime() + new Date(wEnd).getTime())/2);
+      const m = minsBetween(depart, center);
+      // 0 min ⇒ 30, 120 min ⇒ 20
+      const base = Math.max(20, 30 - Math.min(120, m)/12); // down to 20
+      const exactBoost = m <= 15 ? 20 : 0; // exact time boost
+      return base + exactBoost; // up to 50 (but spec says time window 0–30 + exact +20)
+    }
+
+    function returnTripBonus(driver, shipment){
+      // Bonus if shipment is reverse route and aligns with driver return time
+      const reverseRoute = shipment.from === driver.to && shipment.to === driver.from;
+      if(!reverseRoute) return 0;
+      // Use a 2-hour window around return time as acceptable
+      const ret = new Date(driver.returnTime).getTime();
+      const s = new Date(shipment.readyFrom).getTime();
+      const e = new Date(shipment.readyTo).getTime();
+      return (ret >= s - 60*60*1000 && ret <= e + 60*60*1000) ? 10 : 0;
+    }
+
+    function vehicleFitScore(driver, shipment){
+      return driver.capacityKg >= shipment.weightKg ? 10 : 0;
+    }
+
+    function scoreMatch(driver, shipment){
+      const rScore = routeScore(driver.from, shipment.from, driver.to, shipment.to); // 0–40
+      const tScore = timeScore(driver.departTime, shipment.readyFrom, shipment.readyTo); // 0–50 (practically 20–50 when inside window)
+      const rtBonus = returnTripBonus(driver, shipment); // 0–10
+      const vScore = vehicleFitScore(driver, shipment); // 0–10
+
+      let total = rScore + Math.min(30, tScore) + Math.min(20, Math.max(0, tScore-30)) + rtBonus + vScore;
+      // Cap to 100
+      total = Math.min(100, Math.round(total));
+
+      // Reasons
+      const reasons = [];
+      if(rScore>=30) reasons.push("Exact/near‑exact route match");
+      else if(rScore>=16) reasons.push("Good route proximity");
+      else reasons.push("Longer detour required");
+
+      if(tScore>=45) reasons.push("Exact/near‑exact pickup time");
+      else if(tScore>=25) reasons.push("Within pickup window");
+      else reasons.push("Outside pickup window");
+
+      if(rtBonus>0) reasons.push("Return‑trip aligned");
+      if(vScore>0) reasons.push("Vehicle capacity fits");
+      if(driver.rating) reasons.push(`Driver rating ${driver.rating.toFixed(1)}`);
+
+      const dist = kmBetween(driver.from, shipment.from) + kmBetween(driver.to, shipment.to);
+
+      return { total, rScore, tScore: Math.round(tScore), rtBonus, vScore, reasons, dist };
+    }
+
+    // --- Rendering ---
+    function refreshMeta(){
+      const driversMeta = byId('driversMeta');
+      const shipmentsMeta = byId('shipmentsMeta');
+      driversMeta.innerHTML = drivers.length ? drivers.map(d => `<span class="pill">🚚 ${d.name||'Driver'} · ${d.from} → ${d.to} · ${fmtDate(d.departTime)} / ⤺ ${fmtDate(d.returnTime)}</span>`).join('') : '<span class="pill">No drivers yet</span>';
+      shipmentsMeta.innerHTML = shipments.length ? shipments.map(s => `<span class="pill">📦 ${s.biz||'Business'} · ${s.from} → ${s.to} · ${fmtDate(s.readyFrom)}–${fmtDate(s.readyTo)}</span>`).join('') : '<span class="pill">No shipments yet</span>';
+      localStorage.setItem('tv_drivers', JSON.stringify(drivers));
+      localStorage.setItem('tv_shipments', JSON.stringify(shipments));
+    }
+
+    function fmtDate(d){
+      try{
+        return new Date(d).toLocaleString([], {hour: '2-digit', minute: '2-digit', day:'2-digit', month:'short'});
+      }catch(e){ return '' }
+    }
+
+    function renderResults(){
+      const root = byId('results');
+      root.innerHTML = '';
+      if(!drivers.length || !shipments.length){
+        root.innerHTML = `<div class="card"><div class="card-inner"><p>Add at least <b>one driver</b> and <b>one shipment</b>, then click <b>Run matcher</b>.</p></div></div>`;
+        return;
+      }
+
+      // Compute all matches: for each shipment, list drivers with score
+      const cards = [];
+      shipments.forEach((s, idx) => {
+        const scored = drivers.map(d => ({ d, s, score: scoreMatch(d,s) }))
+          .sort((a,b)=> b.score.total - a.score.total || (b.d.rating||0)-(a.d.rating||0) || a.score.dist - b.score.dist)
+          .slice(0, 3); // top 3 drivers per shipment
+
+        const items = scored.map(({d, score}) => `
+          <div class="card result-card">
+            <div class="card-inner">
+              <div class="badge pill">Score <span class="score">${score.total}</span></div>
+              <h3>🚚 ${d.name||'Driver'} · ${d.vehicle.label}</h3>
+              <p style="margin:6px 0 8px">${d.from} → ${d.to} · Depart <b>${fmtDate(d.departTime)}</b> · Return <b>${fmtDate(d.returnTime)}</b></p>
+              <div class="meta">
+                <span class="pill">Route: ${score.rScore}/40</span>
+                <span class="pill">Time: ${score.tScore}/50</span>
+                <span class="pill">Return Bonus: ${score.rtBonus}</span>
+                <span class="pill">Vehicle: ${score.vScore}/10</span>
+              </div>
+              <div class="line"></div>
+              <p>Why this match: ${score.reasons.join(' • ')}</p>
+              <div class="actions" style="margin-top:10px">
+                <button class="btn secondary">Contact: ${d.phone||'—'}</button>
+                <button class="btn">Request Booking</button>
+              </div>
+            </div>
+          </div>`).join('');
+
+        const shipCard = `
+          <div class="card" style="grid-column: 1 / -1;">
+            <div class="card-inner">
+              <h2>📦 ${s.biz||'Shipment'} — ${s.from} → ${s.to} <span class="pill" style="margin-left:8px;">${fmtDate(s.readyFrom)}–${fmtDate(s.readyTo)}</span></h2>
+              <p style="margin:8px 0 14px;">Weight: <b>${s.weightKg}kg</b> • Fragile: <b>${s.fragile}</b></p>
+              <div class="results">${items}</div>
+            </div>
+          </div>`;
+        cards.push(shipCard);
+      });
+
+      root.innerHTML = cards.join('');
+    }
+
+    // --- Actions ---
+    function addDriver(){
+      const d = {
+        name: byId('dName').value.trim() || 'Driver',
+        vehicle: vehiclePresets[+byId('dVehicle').value] || vehiclePresets[0],
+        from: byId('dFrom').value,
+        to: byId('dTo').value,
+        departTime: byId('dDepart').value,
+        returnTime: byId('dReturn').value,
+        capacityKg: +byId('dCapacity').value || (vehiclePresets[+byId('dVehicle').value]||vehiclePresets[0]).capacityKg,
+        rating: +byId('dRating').value || 4.6,
+        phone: byId('dPhone').value.trim()
+      };
+      if(!d.departTime || !d.returnTime){ return toast('Please add depart & return time'); }
+      drivers.push(d); refreshMeta(); toast('Driver trip posted');
+    }
+
+    function addShipment(){
+      const s = {
+        biz: byId('sBiz').value.trim() || 'Business',
+        weightKg: +byId('sWeight').value || 500,
+        from: byId('sFrom').value,
+        to: byId('sTo').value,
+        readyFrom: byId('sReadyFrom').value,
+        readyTo: byId('sReadyTo').value,
+        fragile: byId('sFragile').value,
+        contact: byId('sContact').value.trim(),
+        notes: byId('sNotes').value.trim()
+      };
+      if(!s.readyFrom || !s.readyTo){ return toast('Please add ready window (from/to)'); }
+      shipments.push(s); refreshMeta(); toast('Shipment posted');
+    }
+
+    function runMatcher(){ renderResults(); toast('AI matcher ranked the best fits'); }
+    function clearDrivers(){ drivers = []; refreshMeta(); renderResults(); }
+    function clearShipments(){ shipments = []; refreshMeta(); renderResults(); }
+    function resetAll(){ drivers=[]; shipments=[]; refreshMeta(); renderResults(); localStorage.removeItem('tv_drivers'); localStorage.removeItem('tv_shipments'); toast('All data cleared'); }
+
+    function toast(msg){ const t = byId('toast'); t.textContent = msg; setTimeout(()=> t.textContent='', 2400); }
+
+    function addDemo(){
+      // Demo driver: Kochi->Calicut, depart 10:30 today, return 19:00
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const depart = new Date(today.getTime() + 10.5*3600*1000);
+      const ret = new Date(today.getTime() + 19*3600*1000);
+      drivers.push({
+        name: 'Shaji',
+        vehicle: vehiclePresets[0],
+        from: 'Ernakulam (Kochi)',
+        to: 'Kozhikode',
+        departTime: depart.toISOString().slice(0,16),
+        returnTime: ret.toISOString().slice(0,16),
+        capacityKg: 1500,
+        rating: 4.8,
+        phone: '98xxxxxxx'
+      });
+
+      // Demo shipment 1: Kochi->Calicut, window 10:15–11:45 (near‑exact)
+      const s1from = new Date(today.getTime() + 10.25*3600*1000);
+      const s1to   = new Date(today.getTime() + 11.75*3600*1000);
+      shipments.push({ biz:'Calicut Home Mart', weightKg: 900, from:'Ernakulam (Kochi)', to:'Kozhikode', readyFrom:s1from.toISOString().slice(0,16), readyTo:s1to.toISOString().slice(0,16), fragile:'no', contact:'89xxxxxxx', notes:'—' });
+
+      // Demo shipment 2: Calicut->Kochi (reverse), window around 19:00 (return bonus)
+      const s2from = new Date(today.getTime() + 18.2*3600*1000);
+      const s2to   = new Date(today.getTime() + 20.0*3600*1000);
+      shipments.push({ biz:'Kochi Traders', weightKg: 600, from:'Kozhikode', to:'Ernakulam (Kochi)', readyFrom:s2from.toISOString().slice(0,16), readyTo:s2to.toISOString().slice(0,16), fragile:'yes', contact:'78xxxxxxx', notes:'Handle with care' });
+
+      // Demo shipment 3: Kochi->Thrissur (partial route)
+      const s3from = new Date(today.getTime() + 9.5*3600*1000);
+      const s3to   = new Date(today.getTime() + 12.0*3600*1000);
+      shipments.push({ biz:'Thrissur Kitchens', weightKg: 1200, from:'Ernakulam (Kochi)', to:'Thrissur', readyFrom:s3from.toISOString().slice(0,16), readyTo:s3to.toISOString().slice(0,16), fragile:'no', contact:'77xxxxxxx', notes:'' });
+
+      refreshMeta(); toast('Demo driver & shipments added');
+    }
+
+    // --- Wire up ---
+    window.addEventListener('DOMContentLoaded', () => {
+      populateVehicles();
+      populateCities();
+      refreshMeta();
+      byId('addDriver').addEventListener('click', addDriver);
+      byId('addShipment').addEventListener('click', addShipment);
+      byId('runMatcher').addEventListener('click', runMatcher);
+      byId('runMatcherTop').addEventListener('click', runMatcher);
+      byId('clearDrivers').addEventListener('click', clearDrivers);
+      byId('clearShipments').addEventListener('click', clearShipments);
+      byId('resetAll').addEventListener('click', resetAll);
+      byId('demoAdd').addEventListener('click', addDemo);
+
+      // Prefill with reasonable defaults
+      const nextHourISO = () => {
+        const d = new Date(); d.setMinutes(0,0,0); d.setHours(d.getHours()+1); return d.toISOString().slice(0,16);
+      };
+      byId('dDepart').value = nextHourISO();
+      const rt = new Date(new Date().getTime()+ 8*3600*1000).toISOString().slice(0,16);
+      byId('dReturn').value = rt;
+      byId('sReadyFrom').value = nextHourISO();
+      byId('sReadyTo').value = new Date(new Date().getTime()+ 3*3600*1000).toISOString().slice(0,16);
+    });
+  </script>
+</body>
+</html>
